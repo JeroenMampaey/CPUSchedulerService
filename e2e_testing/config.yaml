@@ -1,11 +1,11 @@
 operating_system:
   make_command: "wsl -d Ubuntu-20.04 make"
-  #ip: "10.0.2.15"
-  #gateway_ip: "10.0.2.2"
-  #netmask: 24
-  ip: "192.168.0.13"
-  gateway_ip: "192.168.0.1"
+  ip: "10.0.2.15"
+  gateway_ip: "10.0.2.2"
   netmask: 24
+  #ip: "192.168.0.13"
+  #gateway_ip: "192.168.0.1"
+  #netmask: 24
 vbox:
   vboxmanage_exe_path: "/Program\ Files/Oracle/VirtualBox/VBoxManage.exe"
   name: "CustomOS"
@@ -27,5 +27,5 @@ qemu:
     path: "/Users/jrmam/Desktop/qemu/image.bin"
 required_testing_info:
   mac: "08:00:27:A0:3D:FC"
-  #client_ip: "10.0.2.3"
-  client_ip: "192.168.0.135"
+  client_ip: "10.0.2.3"
+  #client_ip: "192.168.0.135"

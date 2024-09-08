@@ -4,11 +4,11 @@ operating_system:
 tasks:
   print_hello_world0:
     make_command: "wsl -d Ubuntu-20.04 make"
-    make_directory_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world0"
-    image_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world0/task.bin"
+    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world0"
+    image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world0/task.bin"
     id: 1
   print_hello_world1:
     make_command: "wsl -d Ubuntu-20.04 make"
-    make_directory_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world0"
-    image_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world1/task.bin"
+    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world0"
+    image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world1/task.bin"
     id: 2

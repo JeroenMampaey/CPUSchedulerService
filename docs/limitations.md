@@ -3,6 +3,7 @@
 - This OS was written in relatively short time for fun, it is likely full of bugs and vulnerabilities. Don't expect this to work in some production environment.
 - The OS only offers syscalls for sending and receiving UDP packets, writing a TCP stack is incredibly difficult.
 - The OS currently only runs on a single CPU core, and only supports the x86 architecture.
+- A round-robin task scheduler is used which is not very optimal.
 - The code has only been tested with QEMU and VirtualBox.
 - The network driver used by the OS is specifically for e1000 network cards
 - The OS runs in 32-bit mode.
