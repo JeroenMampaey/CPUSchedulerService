@@ -1,0 +1,2 @@
+make_command: "wsl -d Ubuntu-20.04 make"
+execute_command: "wsl -d Ubuntu-20.04"

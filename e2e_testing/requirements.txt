@@ -1,0 +1,4 @@
+aiocoap
+colorama==0.4.6
+numpy
+scapy==2.5.0

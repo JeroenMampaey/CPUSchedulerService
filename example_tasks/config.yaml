@@ -1,0 +1,14 @@
+operating_system:
+  ip: "10.0.2.15"
+  #ip: "192.168.0.13"
+tasks:
+  print_hello_world0:
+    make_command: "wsl -d Ubuntu-20.04 make"
+    make_directory_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world0"
+    image_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world0/task.bin"
+    id: 1
+  print_hello_world1:
+    make_command: "wsl -d Ubuntu-20.04 make"
+    make_directory_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world0"
+    image_path: "/Users/jrmam/Desktop/BasicOS/example_tasks/print_hello_world1/task.bin"
+    id: 2

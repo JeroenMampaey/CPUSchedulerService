@@ -1,0 +1,15 @@
+operating_system:
+  make_command: "wsl -d Ubuntu-20.04 make"
+  ip: "10.0.2.15"
+  gateway_ip: "10.0.2.2"
+  netmask: 24
+  #ip: "192.168.0.13"
+  #gateway_ip: "192.168.0.1"
+  #netmask: 24
+vbox:
+  disk:
+    path: "/Users/jrmam/Desktop/vbox/CustomOS_1.vdi"
+    actual_disk_start: 2097152
+qemu:
+  disk:
+    path: "/Users/jrmam/Desktop/qemu/image.bin"

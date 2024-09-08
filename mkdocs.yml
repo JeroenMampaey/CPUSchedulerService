@@ -1,0 +1,17 @@
+site_name: Docs
+docs_dir: '.'
+nav:
+  - Index: docs/index.md
+  - QEMU/VirtualBox Setup: docs/qemu-virtualbox-setup.md
+  - Launching The OS And Deploying Tasks: docs/launching-the-os-and-deploying-tasks.md
+  - Running Tests: docs/running-tests.md
+  - Code Architecture: docs/code-architecture.md
+  - Limitations: docs/limitations.md
+theme: 
+  name: readthedocs
+plugins:
+  - search
+  - same-dir
+  - redirects:
+      redirect_maps:
+        'README.md': 'docs/index.md'
