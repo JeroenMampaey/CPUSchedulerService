@@ -113,12 +113,15 @@ Tasks can access the address space from `0x2014000` to `0x2800000`. Once a task 
 
 Accessing address space which you are not allowed to of course leads to a [General Protection Fault](https://en.wikipedia.org/wiki/General_protection_fault). For tasks it might seem they are all accessing the same address space but this is of course not true since this is virtual address space, not physical address space.
 
-The `cpp_lib` folder contains useful code for writing tasks. Key files include:
+The `cpp_lib` folder contains useful code for writing tasks and can be seen as a sort of library. Key files include:
 
 - [`syscalls.h`](syscalls-header.md)
 - [`syscalls.cpp`](syscalls-cpp.md)
 
-These files detail the system calls available to tasks.
+These files detail the system calls available to tasks. Most files in `cpp_lib` are easy to read, with exception:
+
+- `coap_server.h`/`coap_server.cpp`: A class which can be used to run a CoAP server. This object takes up a lot of space, try printing `sizeof(CoAPServer)`, it cannot be allocated in the stack.
+- `memory_manager.h`/`memory_manager.cpp`: A very simple memory allocator, you have to give it memory regions to manage and then allocate and free memory similar to the `malloc`/`free` functions in `C`.
 
 ### Example Tasks
 

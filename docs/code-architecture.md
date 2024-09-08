@@ -26,15 +26,18 @@ Next sections will explain what the purpose is of these tasks. After the tasks a
 
 ![image](images/send-packets-diagram.png)
 
-The components from these diagram can all be found under the `operating_system/network_management_task` folder/
+The components from these diagram can all be found under the `operating_system/network_management_task` folder.
 
 Above images show the two things the Network Management Task is used for:
+
 - Getting received packets from the physical network interface to tasks
 - Sending packets from tasks to the physical network interface
 
 Tasks indirectly interact with the `SocketManager` through syscalls. See the SycallHandler functions in `operating_system/cpu_core/cpu_core.cpp` for details on how the syscalls specifically interact with the `SocketManager`.
 
 ![image](images/task-socketmanager.png)
+
+One detail which has been omitted here, is that on top of a `PhysicalNetworkInterface`, there is also a `LoopbackNetworkInterface`. The difference is of course that the `LoopbackNetworkInterface` is used when the operating system sends/receives packets to/from itself while the `PhysicalNetworkInterface` sends/receives packets from other devices on the network.
 
 # OS Management Task
 
