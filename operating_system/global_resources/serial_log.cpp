@@ -1,7 +1,7 @@
 #include "serial_log.h"
 #include "io/ports.h"
 #include "../../cpp_lib/string.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "screen.h"
 
 #define SERIAL_LOG_PORT 0x3F8

@@ -1,6 +1,6 @@
 #include "rtc_timer.h"
 #include "io/ports.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "screen.h"
 #include "../cpu_core/cpu_core.h"
 #include "../../cpp_lib/atomic.h"

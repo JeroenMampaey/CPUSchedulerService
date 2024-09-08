@@ -1,6 +1,6 @@
 #include "bios_map.h"
 
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "serial_log.h"
 #include "screen.h"
 

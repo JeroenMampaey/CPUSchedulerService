@@ -1,5 +1,5 @@
 #include "task_manager.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 
 #define VIRTUAL_TASK_SPACE_BEGIN_ADDR 0x2000000
 

@@ -345,9 +345,15 @@ void CoAPServer::handlePacketFromReceiveBuffer(unsigned int sourceIP, unsigned s
         currentOptionOffset += optionLength;
     }
 
+    if(pathSizeSoFar==0){
+        path[0] = '/';
+        possibleValidPathsHead = trimListBasedOnNewCharacter(possibleValidPathsHead, '/', true);
+        pathSizeSoFar += 1;
+    }
+
     // possibleValidPathsHead should point to a list of possible valid paths or nullptr if there are no possible paths
     path[pathSizeSoFar] = '\0';
-    possibleValidPathsHead = trimListBasedOnNewCharacter(possibleValidPathsHead, '\0', pathSizeSoFar==0);
+    possibleValidPathsHead = trimListBasedOnNewCharacter(possibleValidPathsHead, '\0', false);
 
     unsigned int requiredWritebufferSize = 
         (possibleValidPathsHead==nullptr || codeDetail==0 || codeDetail>4)

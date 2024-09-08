@@ -1,5 +1,5 @@
 #include "network_management_task.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "../cpu_core/cpu_core.h"
 #include "../../cpp_lib/string.h"
 #include "../../cpp_lib/syscalls.h"

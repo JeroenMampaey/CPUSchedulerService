@@ -1,5 +1,5 @@
 #include "os_management_task.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "api_handlers.h"
 #include "../global_resources/serial_log.h"
 #include "../global_resources/screen.h"

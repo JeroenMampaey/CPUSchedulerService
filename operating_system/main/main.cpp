@@ -1,5 +1,5 @@
 #include "../cpu_core/cpu_core.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "../network_management_task/network_management_task.h"
 #include "../network_management_task/network_stack_handler.h"
 #include "../os_management_task/os_management_task.h"

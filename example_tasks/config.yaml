@@ -9,6 +9,11 @@ tasks:
     id: 1
   print_hello_world1:
     make_command: "wsl -d Ubuntu-20.04 make"
-    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world0"
+    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world1"
     image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/print_hello_world1/task.bin"
     id: 2
+  hello_world_coap_server:
+    make_command: "wsl -d Ubuntu-20.04 make"
+    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/hello_world_coap_server"
+    image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/hello_world_coap_server/task.bin"
+    id: 3

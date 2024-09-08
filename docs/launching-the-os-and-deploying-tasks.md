@@ -147,12 +147,13 @@ The `"tasks"` list in `config.yaml` should include:
 - `"image_path"`: Path to the compiled binary
 - `"id"`: Identifier for the task (used with the CoAP API)
 
-The python files `build_tasks.py`, `deploy_tasks.py` and `remove_tasks.py` are not too difficult to read and show how to build the code for the tasks, how to deploy tasks to the operating system using the CoAP API and how to remove tasks from the operating system using the CoAP API. Notice for example the usage of `handle_blockwise=False` in the `deploy_tasks.py` script, which is used since the operating system does not currently support block wise transfers of large packets.
+In the example tasks folder, the python files `build_tasks.py`, `deploy_tasks.py` and `remove_tasks.py` are not too difficult to read and show how to build the code for the tasks, how to deploy tasks to the operating system using the CoAP API and how to remove tasks from the operating system using the CoAP API. Notice for example the usage of `handle_blockwise=False` in the `deploy_tasks.py` script, which is used since the operating system does not currently support block wise transfers of large packets.
 
 Some example tasks which are already available (see the subdirectories in the example tasks folder):
 
-- `print_hello_world0`
-- `print_hello_world1`
+- `hello_world_coap_server`: [README.md](../example_tasks/hello_world_coap_server/README.md)
+- `print_hello_world0`: [README.md](../example_tasks/print_hello_world0/README.md)
+- `print_hello_world1`: [README.md](../example_tasks/print_hello_world1/README.md)
 
 Their source code is straightforward and worth looking into. The `task_entry.asm` file initializes the binary and jumps to `main.cpp`. The `link.ld` file specifies the binary’s execution address.
 

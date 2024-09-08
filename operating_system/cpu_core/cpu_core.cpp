@@ -1,7 +1,7 @@
 #include "cpu_core.h"
 #include "../global_resources/serial_log.h"
 #include "../global_resources/screen.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "../../cpp_lib/mem.h"
 #include "../../cpp_lib/atomic.h"
 #include "../../cpp_lib/syscalls.h"

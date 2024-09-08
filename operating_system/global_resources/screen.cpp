@@ -3,7 +3,7 @@
 #include "../../cpp_lib/string.h"
 #include "io/ports.h"
 
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 
 #define VIDEO_BUFFER_ADDRESS 0xb8000
 #define REG_SCREEN_CTRL 0x3d4

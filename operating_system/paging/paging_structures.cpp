@@ -1,5 +1,5 @@
 #include "paging_structures.h"
-#include "../cpp/placement_new.h"
+#include "../../cpp_lib/placement_new.h"
 #include "../global_resources/screen.h"
 
 PagingStructures::PagingStructures(){
