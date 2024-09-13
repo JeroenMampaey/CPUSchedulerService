@@ -1,6 +1,6 @@
 operating_system:
-  ip: "10.0.2.15"
-  #ip: "192.168.0.13"
+  #ip: "10.0.2.15"
+  ip: "192.168.0.13"
 tasks:
   print_hello_world0:
     make_command: "wsl -d Ubuntu-20.04 make"
@@ -17,3 +17,8 @@ tasks:
     make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/hello_world_coap_server"
     image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/hello_world_coap_server/task.bin"
     id: 3
+  send_hello_world:
+    make_command: "wsl -d Ubuntu-20.04 make"
+    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/send_hello_world"
+    image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/send_hello_world/task.bin"
+    id: 4
