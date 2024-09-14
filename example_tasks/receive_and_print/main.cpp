@@ -4,25 +4,6 @@
 #include "../../cpp_lib/placement_new.h"
 #include "../../cpp_lib/syscalls.h"
 
-void parseIpAddress(const char* ipString, unsigned char ipOctets[4]) {
-    int octetIndex = 3;
-    unsigned char currentOctet = 0;
-    
-    while (*ipString != '\0') {
-        if (*ipString >= '0' && *ipString <= '9') {
-            currentOctet = currentOctet * 10 + (*ipString - '0');
-        } else if (*ipString == '.') {
-            ipOctets[octetIndex] = currentOctet;
-            octetIndex--;
-            currentOctet = 0;
-        }
-        ipString++;
-    }
-    
-    ipOctets[octetIndex] = currentOctet;
-}
-
-
 void main(){
     // First, we open a UDP socket on port 1000
     int socketID = openSocket(1000);
