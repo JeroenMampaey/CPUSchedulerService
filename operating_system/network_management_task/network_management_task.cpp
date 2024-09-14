@@ -300,8 +300,9 @@ void networkManagementTask(CpuCore* pThisCpuCore, SocketManager* pSocketManager,
         SocketManager::TransmissionRequestsIterator transmissionRequestsIterator = pSocketManager->getTransmissionRequestsIterator();
         
         while(!transmissionRequestsIterator.isFinished()){
-            class HandleTranmissionRequestTop : public Runnable{
+            class HandleTransmissionRequest : public Runnable{
                 private:
+                    SocketManager* pSocketManager;
                     NetworkStackHandler<PHYINT_NUM_PACKET_BUFFERS, PHYINT_ARP_HASH_TABLE_SIZE, PHYINT_ARP_HASH_ENTRY_LIST_SIZE>* pPhysicalNetworkStackHandler;
                     NetworkStackHandler<LOINT_NUM_PACKET_BUFFERS, LOINT_ARP_HASH_TABLE_SIZE, LOINT_ARP_HASH_ENTRY_LIST_SIZE>* pLoopbackNetworkStackHandler;
                     SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator;
@@ -309,14 +310,8 @@ void networkManagementTask(CpuCore* pThisCpuCore, SocketManager* pSocketManager,
                     LoopbackNetworkInterface* pLoopbackNetworkInterface;
 
                 public:
-                    OutgoingUDPPacket outgoingUDPPacket;
-                    NetworkInterface* pNetworkInterface;
-                    unsigned short identification;
-                    unsigned int fragmentOffset;
-                    unsigned char* writeBuffer;
-                    Pair<IPv4PacketProgress, unsigned int> state;
-
-                    HandleTranmissionRequestTop(
+                    HandleTransmissionRequest(
+                        SocketManager* pSocketManager,
                         NetworkStackHandler<PHYINT_NUM_PACKET_BUFFERS, PHYINT_ARP_HASH_TABLE_SIZE, PHYINT_ARP_HASH_ENTRY_LIST_SIZE>* pPhysicalNetworkStackHandler,
                         NetworkStackHandler<LOINT_NUM_PACKET_BUFFERS, LOINT_ARP_HASH_TABLE_SIZE, LOINT_ARP_HASH_ENTRY_LIST_SIZE>* pLoopbackNetworkStackHandler,
                         SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator,
@@ -324,127 +319,76 @@ void networkManagementTask(CpuCore* pThisCpuCore, SocketManager* pSocketManager,
                         LoopbackNetworkInterface* pLoopbackNetworkInterface
                     )
                         :
+                        pSocketManager(pSocketManager),
                         pPhysicalNetworkStackHandler(pPhysicalNetworkStackHandler),
                         pLoopbackNetworkStackHandler(pLoopbackNetworkStackHandler),
                         transmissionRequestsIterator(transmissionRequestsIterator),
                         pPhysicalNetworkInterface(pPhysicalNetworkInterface),
-                        pLoopbackNetworkInterface(pLoopbackNetworkInterface),
-                        outgoingUDPPacket(transmissionRequestsIterator->getTop()),
-                        pNetworkInterface(
-                            outgoingUDPPacket.destinationIP==
+                        pLoopbackNetworkInterface(pLoopbackNetworkInterface)
+                    {}
+
+                    void run(){
+                        OutgoingUDPPacket outgoingUDPPacket = transmissionRequestsIterator->getTop();
+                        NetworkInterface* pNetworkInterface = outgoingUDPPacket.destinationIP==
                             #ifdef THIS_IP
                                 THIS_IP
                             #else
                                 0
                             #endif
-                            ? (NetworkInterface*)pLoopbackNetworkInterface : (NetworkInterface*)pPhysicalNetworkInterface),
-                        identification(outgoingUDPPacket.identification),
-                        fragmentOffset(outgoingUDPPacket.fragmentOffset),
-                        writeBuffer(pNetworkInterface->getWriteBuffer()),
-                        state()
-                    {}
+                            ? (NetworkInterface*)pLoopbackNetworkInterface : (NetworkInterface*)pPhysicalNetworkInterface;
+                        unsigned short identification = outgoingUDPPacket.identification;
+                        unsigned int fragmentOffset = outgoingUDPPacket.fragmentOffset;
+                        unsigned char* writeBuffer = pNetworkInterface->getWriteBuffer();
+                        Pair<IPv4PacketProgress, unsigned int> state;
 
-                    void run(){
+                        while(writeBuffer!=nullptr){
+                            if(outgoingUDPPacket.dataLen==0){
+                                break;
+                            }
+
+                            if(fragmentOffset==0){
+                                unsigned char* udpHeader = outgoingUDPPacket.data;
+                                udpHeader[0] = outgoingUDPPacket.sourcePort >> 8;
+                                udpHeader[1] = outgoingUDPPacket.sourcePort & 0xFF;
+                                udpHeader[2] = outgoingUDPPacket.destinationPort >> 8;
+                                udpHeader[3] = outgoingUDPPacket.destinationPort & 0xFF;
+                                udpHeader[4] = outgoingUDPPacket.dataLen >> 8;
+                                udpHeader[5] = outgoingUDPPacket.dataLen & 0xFF;
+                                udpHeader[6] = 0x00;
+                                udpHeader[7] = 0x00;
+                            }
+
+                            if(pNetworkInterface==pPhysicalNetworkInterface){
+                                state = pPhysicalNetworkStackHandler->handleOutgoingIPv4Packet(
+                                    outgoingUDPPacket.destinationIP, outgoingUDPPacket.sourcePort, outgoingUDPPacket.destinationPort, UDP_IPV4_PROTOCOL, 
+                                    outgoingUDPPacket.data, outgoingUDPPacket.dataLen, identification, fragmentOffset, writeBuffer);    
+                            }
+                            else if(pNetworkInterface==pLoopbackNetworkInterface){
+                                state = pLoopbackNetworkStackHandler->handleOutgoingIPv4Packet(
+                                    outgoingUDPPacket.destinationIP, outgoingUDPPacket.sourcePort, outgoingUDPPacket.destinationPort, UDP_IPV4_PROTOCOL, 
+                                    outgoingUDPPacket.data, outgoingUDPPacket.dataLen, identification, fragmentOffset, writeBuffer);
+                            }
+                            
+                            if(state.second>0){
+                                bool usesIPv4Context = state.first==IPv4PacketProgress::Done || state.first==IPv4PacketProgress::SendingFragment;
+                                pNetworkInterface->finishWriteBuffer(state.second, usesIPv4Context);
+                                writeBuffer = pNetworkInterface->getWriteBuffer();
+                            }
+
+                            if(state.first==IPv4PacketProgress::WaitingOnARPReply || state.first==IPv4PacketProgress::ARPTableFull || state.first==IPv4PacketProgress::Done){
+                                break;
+                            }
+                        }
+
                         if(outgoingUDPPacket.dataLen==0){
-                            return;
-                        }
+                            // Outgoing UDP packet makes no sense, remove it
 
-                        if(fragmentOffset==0){
-                            unsigned char* udpHeader = outgoingUDPPacket.data;
-                            udpHeader[0] = outgoingUDPPacket.sourcePort >> 8;
-                            udpHeader[1] = outgoingUDPPacket.sourcePort & 0xFF;
-                            udpHeader[2] = outgoingUDPPacket.destinationPort >> 8;
-                            udpHeader[3] = outgoingUDPPacket.destinationPort & 0xFF;
-                            udpHeader[4] = outgoingUDPPacket.dataLen >> 8;
-                            udpHeader[5] = outgoingUDPPacket.dataLen & 0xFF;
-                            udpHeader[6] = 0x00;
-                            udpHeader[7] = 0x00;
-                        }
-
-                        if(pNetworkInterface==pPhysicalNetworkInterface){
-                            state = pPhysicalNetworkStackHandler->handleOutgoingIPv4Packet(
-                                outgoingUDPPacket.destinationIP, outgoingUDPPacket.sourcePort, outgoingUDPPacket.destinationPort, UDP_IPV4_PROTOCOL, 
-                                outgoingUDPPacket.data, outgoingUDPPacket.dataLen, identification, fragmentOffset, writeBuffer);    
-                        }
-                        else if(pNetworkInterface==pLoopbackNetworkInterface){
-                            state = pLoopbackNetworkStackHandler->handleOutgoingIPv4Packet(
-                                outgoingUDPPacket.destinationIP, outgoingUDPPacket.sourcePort, outgoingUDPPacket.destinationPort, UDP_IPV4_PROTOCOL, 
-                                outgoingUDPPacket.data, outgoingUDPPacket.dataLen, identification, fragmentOffset, writeBuffer);
-                        }
-                    }
-            };
-            HandleTranmissionRequestTop handleTranmissionRequestTopPacket(
-                pPhysicalNetworkStackHandler,
-                pLoopbackNetworkStackHandler,
-                transmissionRequestsIterator,
-                pPhysicalNetworkInterface,
-                pLoopbackNetworkInterface
-            );
-
-            while(handleTranmissionRequestTopPacket.writeBuffer!=nullptr){
-                pThisCpuCore->withTaskSwitchingPaused(handleTranmissionRequestTopPacket);
-
-                if(handleTranmissionRequestTopPacket.outgoingUDPPacket.dataLen==0){
-                    break;
-                }
-                
-                if(handleTranmissionRequestTopPacket.state.second>0){
-                    bool usesIPv4Context = handleTranmissionRequestTopPacket.state.first==IPv4PacketProgress::Done || handleTranmissionRequestTopPacket.state.first==IPv4PacketProgress::SendingFragment;
-                    handleTranmissionRequestTopPacket.pNetworkInterface->finishWriteBuffer(handleTranmissionRequestTopPacket.state.second, usesIPv4Context);
-                    handleTranmissionRequestTopPacket.writeBuffer = handleTranmissionRequestTopPacket.pNetworkInterface->getWriteBuffer();
-                }
-
-                if(handleTranmissionRequestTopPacket.state.first==IPv4PacketProgress::WaitingOnARPReply || handleTranmissionRequestTopPacket.state.first==IPv4PacketProgress::ARPTableFull || handleTranmissionRequestTopPacket.state.first==IPv4PacketProgress::Done){
-                    break;
-                }
-            }
-
-            if(handleTranmissionRequestTopPacket.outgoingUDPPacket.dataLen==0){
-                // Outgoing UDP packet makes no sense, remove transmission request entirely
-                class HandleEmptyTransmissionRequestTop : public Runnable{
-                    private:
-                        SocketManager* pSocketManager;
-                        SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator;
-
-                    public:
-                        HandleEmptyTransmissionRequestTop(
-                            SocketManager* pSocketManager,
-                            SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator
-                        )
-                            :
-                            pSocketManager(pSocketManager),
-                            transmissionRequestsIterator(transmissionRequestsIterator)
-                        {}
-
-                        void run(){
+                            // Indicate that the transmission request is done
+                            transmissionRequestsIterator->indicateAsFinished();
                             pSocketManager->remove(transmissionRequestsIterator);
                         }
-                };
-
-                HandleEmptyTransmissionRequestTop handleEmptyTransmissionRequestTop(
-                    pSocketManager,
-                    transmissionRequestsIterator
-                );
-                pThisCpuCore->withTaskSwitchingPaused(handleEmptyTransmissionRequestTop);
-            }
-            else if(handleTranmissionRequestTopPacket.fragmentOffset>=handleTranmissionRequestTopPacket.outgoingUDPPacket.dataLen){
-                // Outgoing UDP packet was done
-                class HandleDoneTransmissionRequestTop : public Runnable{
-                    private:
-                        SocketManager* pSocketManager;
-                        SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator;
-
-                    public:
-                        HandleDoneTransmissionRequestTop(
-                            SocketManager* pSocketManager,
-                            SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator
-                        )
-                            :
-                            pSocketManager(pSocketManager),
-                            transmissionRequestsIterator(transmissionRequestsIterator)
-                        {}
-
-                        void run(){
+                        else if(fragmentOffset>=outgoingUDPPacket.dataLen){
+                            // Outgoing UDP packet was done
                             bool txRequestDone = transmissionRequestsIterator->removeTop();
                             if(txRequestDone){
                                 transmissionRequestsIterator->indicateAsFinished();
@@ -454,81 +398,28 @@ void networkManagementTask(CpuCore* pThisCpuCore, SocketManager* pSocketManager,
                                 pSocketManager->relocateToEnd(transmissionRequestsIterator);
                             }
                         }
-                };
-
-                HandleDoneTransmissionRequestTop handleDoneTransmissionRequestTop(
-                    pSocketManager,
-                    transmissionRequestsIterator
-                );
-                pThisCpuCore->withTaskSwitchingPaused(handleDoneTransmissionRequestTop);
-            }
-            else if(handleTranmissionRequestTopPacket.writeBuffer==nullptr){
-                // Not possible to send anymore packets, network card buffer is full
-                // Will try again next time
-                class HandleFullTransmissionRequestTop : public Runnable{
-                    private:
-                        SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator;
-                        unsigned int fragmentOffset;
-                        unsigned short identification;
-
-                    public:
-                        HandleFullTransmissionRequestTop(
-                            SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator,
-                            unsigned int fragmentOffset,
-                            unsigned short identification
-                        )
-                            :
-                            transmissionRequestsIterator(transmissionRequestsIterator),
-                            fragmentOffset(fragmentOffset),
-                            identification(identification)
-                        {}
-
-                        void run(){
+                        else if(writeBuffer==nullptr){
+                            // Not possible to send anymore packets, network card buffer is full
+                            // Will try again next time
                             transmissionRequestsIterator->updateTop(fragmentOffset, identification);
                         }
-                };
-
-                HandleFullTransmissionRequestTop handleFullTransmissionRequestTop(
-                    transmissionRequestsIterator,
-                    handleTranmissionRequestTopPacket.fragmentOffset,
-                    handleTranmissionRequestTopPacket.identification
-                );
-                pThisCpuCore->withTaskSwitchingPaused(handleFullTransmissionRequestTop);
-                break;
-            }
-            else{
-                // Outgoing UDP packet was not done yet, network card is waiting for ARP responses
-                class HandleNotDoneTransmissionRequestTop : public Runnable{
-                    private:
-                        SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator;
-                        unsigned int fragmentOffset;
-                        unsigned short identification;
-
-                    public:
-                        HandleNotDoneTransmissionRequestTop(
-                            SocketManager::TransmissionRequestsIterator& transmissionRequestsIterator,
-                            unsigned int fragmentOffset,
-                            unsigned short identification
-                        )
-                            :
-                            transmissionRequestsIterator(transmissionRequestsIterator),
-                            fragmentOffset(fragmentOffset),
-                            identification(identification)
-                        {}
-
-                        void run(){
+                        else{
+                            // Outgoing UDP packet was not done yet, network card is waiting for ARP responses
                             transmissionRequestsIterator->updateTop(fragmentOffset, identification);
                             transmissionRequestsIterator.goToNext();
                         }
-                };
+                    }
+            };
 
-                HandleNotDoneTransmissionRequestTop handleNotDoneTransmissionRequestTop(
-                    transmissionRequestsIterator,
-                    handleTranmissionRequestTopPacket.fragmentOffset,
-                    handleTranmissionRequestTopPacket.identification
-                );
-                pThisCpuCore->withTaskSwitchingPaused(handleNotDoneTransmissionRequestTop);
-            }
+            HandleTransmissionRequest handleTranmissionRequest(
+                pSocketManager,
+                pPhysicalNetworkStackHandler,
+                pLoopbackNetworkStackHandler,
+                transmissionRequestsIterator,
+                pPhysicalNetworkInterface,
+                pLoopbackNetworkInterface
+            );
+            pThisCpuCore->withTaskSwitchingPaused(handleTranmissionRequest);
         }
 
         class HandleReceivedPacket : public Runnable{

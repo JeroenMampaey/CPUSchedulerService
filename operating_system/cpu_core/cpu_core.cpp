@@ -124,6 +124,12 @@ void setReceiveBufferSyscallHandler(unsigned int interruptParam, unsigned int ea
             taskId, pSetReceiveBufferSyscallArgs->socketID, pSetReceiveBufferSyscallArgs->buffer, 
             pSetReceiveBufferSyscallArgs->bufferSize);
     }
+    else if(pSetReceiveBufferSyscallArgs->buffer==nullptr && pSetReceiveBufferSyscallArgs->bufferSize==0){
+        // Make an exception if buffer==nullptr and bufferSize==0
+        // Tasks are allowed to do this, to tell the OS that they are not interested in receiving any data
+        pSetReceiveBufferSyscallArgs->success = pSocketManager->setReceiveBuffer(
+            taskId, pSetReceiveBufferSyscallArgs->socketID, nullptr, 0);
+    }
     else{
         CpuCore::UserTask* pUserTask = (CpuCore::UserTask*)pTask;
 
@@ -175,6 +181,12 @@ void setSendBufferSyscallHandler(unsigned int interruptParam, unsigned int eax){
         pSetSendBufferSyscallArgs->success = pSocketManager->setSendBuffer(
             taskId, pSetSendBufferSyscallArgs->socketID, pSetSendBufferSyscallArgs->buffer, 
             pSetSendBufferSyscallArgs->bufferSize, pSetSendBufferSyscallArgs->indicatorWhenFinished);
+    }
+    else if(pSetSendBufferSyscallArgs->buffer==nullptr && pSetSendBufferSyscallArgs->bufferSize==0 && pSetSendBufferSyscallArgs->indicatorWhenFinished==nullptr){
+        // Make an exception if buffer==nullptr and bufferSize==0 and indicatorWhenFinished==nullptr
+        // Tasks are allowed to do this, to tell the OS that they want to cancel the previous send buffer
+        pSetSendBufferSyscallArgs->success = pSocketManager->setSendBuffer(
+            taskId, pSetSendBufferSyscallArgs->socketID, nullptr, 0, nullptr);
     }
     else{
         CpuCore::UserTask* pUserTask = (CpuCore::UserTask*)pTask;

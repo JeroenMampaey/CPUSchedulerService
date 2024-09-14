@@ -25,7 +25,7 @@ int openSocket(unsigned short udpPort){
 }
 
 int setReceiveBuffer(unsigned char socketID, unsigned char* buffer, unsigned int bufferSize){
-    if(bufferSize >= RECEIVE_BUFFER_HEADER_SIZE){
+    if(bufferSize >= RECEIVE_BUFFER_HEADER_SIZE && buffer != nullptr){
         for(int i=0; i<RECEIVE_BUFFER_HEADER_SIZE; i++){
             buffer[i] = 0;
         }
@@ -46,7 +46,9 @@ int setReceiveBuffer(unsigned char socketID, unsigned char* buffer, unsigned int
 }
 
 int setSendBuffer(unsigned char socketID, unsigned char* buffer, unsigned int bufferSize, int* indicatorWhenFinished){
-    *indicatorWhenFinished = 0;
+    if(indicatorWhenFinished != nullptr){
+        *indicatorWhenFinished = 0;
+    }
 
     SetSendBufferSyscallArgs args;
     args.socketID = socketID;

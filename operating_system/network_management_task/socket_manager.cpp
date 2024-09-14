@@ -80,7 +80,7 @@ int SocketManager::setReceiveBuffer(unsigned char taskID, unsigned char socketID
         return -1;
     }
     
-    if(newBufferSize < 2*RECEIVE_BUFFER_HEADER_SIZE){
+    if(newBufferSize < 2*RECEIVE_BUFFER_HEADER_SIZE && (newBufferSize!=0 || newBuffer!=nullptr)){
         return -1;
     }
     
@@ -101,7 +101,7 @@ int SocketManager::setSendBuffer(unsigned char taskID, unsigned char socketID, u
         return -1;
     }
 
-    if(newBufferSize < SEND_BUFFER_HEADER_SIZE+UDP_HEADER_SIZE){
+    if(newBufferSize < SEND_BUFFER_HEADER_SIZE+UDP_HEADER_SIZE && (newBufferSize!=0 || newBuffer!=nullptr || indicatorWhenFinished!=nullptr)){
         return -1;
     }
     
@@ -111,11 +111,15 @@ int SocketManager::setSendBuffer(unsigned char taskID, unsigned char socketID, u
         return -1;
     }
 
-    pSocketDesc->sendBuffer = newBuffer;
-    pSocketDesc->sendBufferSize = newBufferSize;
-    pSocketDesc->sendBufferIdentification = 0;
-    pSocketDesc->sendBufferFragmentOffset = 0;
-    pSocketDesc->sendBufferIndicatorWhenFinished = indicatorWhenFinished;
+    if(newBufferSize==0 && newBuffer==nullptr && indicatorWhenFinished==nullptr){
+        // If this occurs, then we don't care if there is a free transmissionRequest or not
+        pSocketDesc->sendBuffer = nullptr;
+        pSocketDesc->sendBufferSize = 0;
+        pSocketDesc->sendBufferIdentification = 0;
+        pSocketDesc->sendBufferFragmentOffset = 0;
+        pSocketDesc->sendBufferIndicatorWhenFinished = nullptr;
+        return 0;
+    }
 
     // First remove element from unusedTransmissionRequestsList
     DoublyLinkedListElement<TransmissionRequest>* newTransmissionRequest = unusedTransmissionRequestsHead;
@@ -137,6 +141,13 @@ int SocketManager::setSendBuffer(unsigned char taskID, unsigned char socketID, u
         transmissionRequestsTail = newTransmissionRequest;
     }
     transmissionRequestsHead = newTransmissionRequest;
+
+    // Change the pSocketDesc accordingly
+    pSocketDesc->sendBuffer = newBuffer;
+    pSocketDesc->sendBufferSize = newBufferSize;
+    pSocketDesc->sendBufferIdentification = 0;
+    pSocketDesc->sendBufferFragmentOffset = 0;
+    pSocketDesc->sendBufferIndicatorWhenFinished = indicatorWhenFinished;
 
     return 0;
 }
@@ -287,6 +298,12 @@ void SocketManager::TransmissionRequest::indicateAsFinished(){
     if(pSocketDesc->sendBufferIndicatorWhenFinished!=nullptr){
         *(pSocketDesc->sendBufferIndicatorWhenFinished) = 1;
     }
+    
+    // If indicated that this was finished, then remove buffers that were set by the task since task 
+    // will now assume we won't ever look at those buffers again
+    pSocketDesc->sendBufferIndicatorWhenFinished = nullptr;
+    pSocketDesc->sendBuffer = nullptr;
+    pSocketDesc->sendBufferSize = 0;
 }
 
 SocketManager::TransmissionRequestsIterator::TransmissionRequestsIterator(SocketManager* pSocketManager)

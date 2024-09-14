@@ -37,10 +37,6 @@ void main(){
         sendBuffer[18+UDP_HEADER_SIZE] = 'd';
         sendBuffer[19+UDP_HEADER_SIZE] = '!';
 
-        for(int i=0; i<SEND_BUFFER_HEADER_SIZE; i++){
-            sendBuffer[SEND_BUFFER_HEADER_SIZE + i] = 0;
-        }
-
         int indicatorWhenFinished = 0;
 
         int success = setSendBuffer(socketID, sendBuffer, udpLength + 2*SEND_BUFFER_HEADER_SIZE, &indicatorWhenFinished);

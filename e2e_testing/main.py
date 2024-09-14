@@ -116,7 +116,7 @@ def main():
     test_suite.addTest(loader.loadTestsFromTestCase(SyscallTests))
     test_suite.addTest(loader.loadTestsFromTestCase(TaskPrivilegesAndVirtSpaceTests))
     # Example on how to run a single test:
-    #test_suite.addTest(NetworkTests("test_network_stack_should_be_initialized_correctly"))
+    #test_suite.addTest(SyscallTests("test_setting_send_buffer_to_nullptr_should_succeed_if_size_zero_and_indicator_nullptr"))
 
     runner = unittest.TextTestRunner(resultclass=CustomTextTestResult)
     result = runner.run(test_suite)

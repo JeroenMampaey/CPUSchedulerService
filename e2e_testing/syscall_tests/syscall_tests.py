@@ -527,3 +527,81 @@ class SyscallTests(VmTests):
 
         self.assertTrue(passed_time >= 10*(1-ALLOWABLE_ERROR), f"Task finished already after {passed_time} seconds")
         self.assertTrue(passed_time <= 10*(1+ALLOWABLE_ERROR), f"Task only finished after {passed_time} seconds")
+    
+    def test_setting_receive_buffer_to_nullptr_should_succeed_if_size_also_zero(self) -> None:
+        success = self.deploy_user_task("set_receive_buffer_to_nullptr_task", 1)
+        if not success:
+            self.fail("Failed to deploy task")
+        
+        try:
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "88":
+                    self.fail("First test failed")
+                elif logintValue == "89":
+                    break
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "90":
+                    self.fail("Second test failed")
+                elif logintValue == "91":
+                    break
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "92":
+                    break
+                elif logintValue == "93":
+                    self.fail("Third test failed")
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "94":
+                    break
+                elif logintValue == "95":
+                    self.fail("Fourth test failed")
+        except TimeoutError as e:
+            self.fail(f"Timeout while waiting for log entry")
+    
+    def test_setting_send_buffer_to_nullptr_should_succeed_if_size_zero_and_indicator_nullptr(self) -> None:
+        success = self.deploy_user_task("set_send_buffer_to_nullptr_task", 1)
+        if not success:
+            self.fail("Failed to deploy task")
+        
+        try:
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "88":
+                    self.fail("First test failed")
+                elif logintValue == "89":
+                    break
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "90":
+                    self.fail("Second test failed")
+                elif logintValue == "91":
+                    break
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "92":
+                    self.fail("Second test failed")
+                elif logintValue == "93":
+                    break
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "94":
+                    break
+                elif logintValue == "95":
+                    self.fail("Third test failed")
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "96":
+                    break
+                elif logintValue == "97":
+                    self.fail("Third test failed")
+            for line in self.vm.follow_logfile(marker="LogInt:"):
+                logintValue = line.split(" ")[1]
+                if logintValue == "98":
+                    break
+                elif logintValue == "99":
+                    self.fail("Third test failed")
+        except TimeoutError as e:
+            self.fail(f"Timeout while waiting for log entry")
