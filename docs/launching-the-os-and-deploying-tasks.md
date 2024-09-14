@@ -158,6 +158,7 @@ Some example tasks which are already available (see the subdirectories in the ex
 - `print_hello_world0`: [README.md](../example_tasks/print_hello_world0/README.md)
 - `print_hello_world1`: [README.md](../example_tasks/print_hello_world1/README.md)
 - `send_hello_world`: [README.md](../example_tasks/send_hello_world/README.md)
+- `receive_and_print`: [README.md](../example_tasks/receive_and_print/README.md)
 
 Their source code is straightforward and worth looking into. The `task_entry.asm` file initializes the binary and jumps to `main.cpp`. The `link.ld` file specifies the binary’s execution address.
 

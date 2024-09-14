@@ -15,6 +15,7 @@ if __name__=="__main__":
     s.bind((ip, port))
 
     # Receive data from the socket
+    print(f"Listening on {ip}:{port}, press Ctrl+C to quit")
     while True:
         try:
             data, addr = s.recvfrom(1024)

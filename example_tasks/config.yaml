@@ -22,3 +22,8 @@ tasks:
     make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/send_hello_world"
     image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/send_hello_world/task.bin"
     id: 4
+  receive_and_print:
+    make_command: "wsl -d Ubuntu-20.04 make"
+    make_directory_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/receive_and_print"
+    image_path: "/Users/jrmam/Desktop/CPUSchedulerService/example_tasks/receive_and_print/task.bin"
+    id: 5

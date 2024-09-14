@@ -13,7 +13,7 @@ Well, first it is needed to specify to the task which remote machine it needs to
 
 Change these with the IP of the remote machine and some port which is available on this machine.
 
-On this remote machine, run the `receive_packets.py` script which you can find in this directory. This script will first ask once again the same `REMOTE_IP` and `REMOTE_PORT` parameters. Then it will listen to incoming packets.
+On this remote machine, run the `receive_packets.py` script, which you can find in this directory. This script will first ask once again the same `REMOTE_IP` and `REMOTE_PORT` parameters. Then it will listen to incoming packets.
 
 Next, on the machine with the CPUSchedulerService OS, launch the task from this directory. After launching the task, there should be four incoming UDP packets on the remote machine, with the following payloads:
 
