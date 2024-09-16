@@ -8,12 +8,12 @@ The following sections go over how the operating system code works. This is high
 
 ### Explained
 
-The machine will first load in the bootsector, which is the code found in  `operating_system/boot`. This code will load the kernel and jump to the code in `operating_system/kernel_entry.asm` which will just jump to the main function in `operating_system/main.cpp`.
+The machine will first load in the bootsector, which is the code found in  `operating_system/boot`. This code will load the kernel and jump to the code in `operating_system/main/kernel_entry.asm` which will just jump to the main function in `operating_system/main/main.cpp`.
 
 The main function basically does the following:
 
 - Initialize some global resources like the screen, e1000 network card etc. These classes can all be found at `operating_system/global_resources`.
-- Create a `CpuCore` object, see `operating_system/cpu_core.h`, and then it will call `bind()` on this object, meaning that this `CpuCore` will represent the core that is executing the main function. The idea here is that each core will need to create such an object and bind to it, but currently the code only supports running with a single CPU core (APIC setup etc. is not implemented).
+- Create a `CpuCore` object, see `operating_system/cpu_core/cpu_core.h`, and then it will call `bind()` on this object, meaning that this `CpuCore` will represent the core that is executing the main function. The idea here is that each core will need to create such an object and bind to it, but currently the code only supports running with a single CPU core (APIC setup etc. is not implemented).
 - Create two tasks for the `CpuCore`:
     - A Network Management Task
     - An OS Management Task
