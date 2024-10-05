@@ -1,3 +1,5 @@
+<img src="docs/images/virtualbox_example.png" alt="virtualbox_example" width="50%"/>
+
 # About
 
 This project tries to create a minimal operating system with only a task scheduler and a network driver. The idea of this operating system is that it offers a [CoAP](https://en.wikipedia.org/wiki/Constrained_Application_Protocol) API which can be used to deploy tasks to the operating system. Tasks run in main memory and can use system calls to interact with the network, enabling them to access resources, return results, and communicate with other systems. An operating system like this could be used to deploy simple server applications, disregarding the fact that there are however currently still a lot of limitations.
